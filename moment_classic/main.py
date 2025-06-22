@@ -3,8 +3,12 @@ from typing import Dict
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from starlette.staticfiles import StaticFiles
 
 app = FastAPI()
+
+app.mount("/music", StaticFiles(directory="music"), name="music")
+
 
 # CORS 설정 (프론트에서 요청 가능하게)
 app.add_middleware(
@@ -21,31 +25,31 @@ EMOTION_DB: Dict[str, Dict] = {
         "title": "Gounod - Ave Maria",
         "youtube": "https://www.youtube.com/embed/2bosouX_d8Y",
         "description": "고뇌 속에서 위로를 주는 음악",
-        "commentary": "아내의 한마디: '눈물이 날 땐 음악이 가장 먼저 안아줍니다.'",
+        "commentary": "오늘의 한마디: '눈물이 날 땐 음악이 가장 먼저 안아줍니다.'",
     },
     "불안": {
         "title": "Bach - Cello Suite No.1 Prelude",
         "youtube": "https://www.youtube.com/embed/mGQLXRTl3Z0",
         "description": "혼란한 마음을 정리하는 구조적인 멜로디",
-        "commentary": "아내의 한마디: '불안할 땐 바흐처럼 질서 있게 나아가요.'",
+        "commentary": "오늘의 한마디: '불안할 땐 바흐처럼 질서 있게 나아가요.'",
     },
     "기쁨": {
         "title": "Mozart - Eine kleine Nachtmusik",
         "youtube": "https://www.youtube.com/embed/o1FSN8_pp_o",
         "description": "경쾌하고 생기 넘치는 소나타",
-        "commentary": "아내의 한마디: '기쁨은 나눌수록 커집니다. 함께 들어요.'",
+        "commentary": "오늘의 한마디: '기쁨은 나눌수록 커집니다. 함께 들어요.'",
     },
     "집중": {
         "title": "Debussy - Clair de Lune",
         "youtube": "https://www.youtube.com/embed/CvFH_6DNRCY",
         "description": "은은한 긴장감이 흐르는 달빛의 서정",
-        "commentary": "아내의 한마디: '소리는 흐르지만 정신은 멈춰있을 거예요.'",
+        "commentary": "오늘의 한마디: '소리는 흐르지만 정신은 멈춰있을 거예요.'",
     },
     "혼란": {
         "title": "Beethoven - Moonlight Sonata",
         "youtube": "https://www.youtube.com/embed/4Tr0otuiQuU",
         "description": "깊고 어두운 감정 속에서 균형을 찾는 과정",
-        "commentary": "아내의 한마디: '혼란도 결국 지나가는 파도에요.'",
+        "commentary": "오늘의 한마디: '혼란도 결국 지나가는 파도에요.'",
     },
 }
 
@@ -70,7 +74,13 @@ def get_emotion_page(emotion: str):
             <h1 class=\"text-2xl font-bold text-center mb-4\">{emotion}을 위한 클래식</h1>
             <h2 class=\"text-xl font-semibold mb-2\">🎼 {data['title']}</h2>
             <div class=\"aspect-w-16 aspect-h-9 mb-4\">
-                <iframe class=\"w-full h-64 rounded\" src=\"{data['youtube']}\" frameborder=\"0\" allowfullscreen></iframe>
+                <iframe class=\"w-full h-64 rounded\" src="{data['youtube']}" 
+                    title="moment classic player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allowfullscreen>
+                </iframe>
             </div>
             <p class=\"text-gray-700 mb-2\">{data['description']}</p>
             <p class=\"italic text-sm text-gray-600\">{data['commentary']}</p>
