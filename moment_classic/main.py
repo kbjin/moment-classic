@@ -3,12 +3,8 @@ from typing import Dict
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from starlette.staticfiles import StaticFiles
 
 app = FastAPI()
-
-app.mount("/music", StaticFiles(directory="music"), name="music")
-
 
 # CORS 설정 (프론트에서 요청 가능하게)
 app.add_middleware(
