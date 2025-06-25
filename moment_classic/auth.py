@@ -2,9 +2,11 @@
 import os
 import secrets
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 
+load_dotenv()
 security = HTTPBasic()
 
 # 기본 인증 정보

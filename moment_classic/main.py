@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -8,7 +7,6 @@ from moment_classic import models, schemas
 from moment_classic.auth import auth_or_api_key
 from moment_classic.database import get_db
 
-load_dotenv()
 app = FastAPI()
 
 # CORS 설정 (프론트에서 요청 가능하게)
@@ -40,10 +38,10 @@ def get_emotion_page(emotion: str, db: Session = Depends(get_db)):
         </head>
         <body class=\"bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-6\">
             <div class=\"max-w-xl w-full bg-white rounded-2xl shadow-lg p-6\">
-                <h1 class=\"text-2xl font-bold text-center mb-4\">{emotion}을 위한 클래식</h1>
+                <h1 class=\"text-2xl font-bold text-center mb-4\">모션 클래식 - {emotion}을 위한 클래식</h1>
                 <h2 class=\"text-xl font-semibold mb-2\">🎼 {data.title}</h2>
                 <div class=\"aspect-w-16 aspect-h-9 mb-4\">
-                    <iframe class=\"w-full h-64 rounded\" src="https://www.youtube.com/embed/{data.youtube_url}" 
+                    <iframe class=\"w-full h-64 rounded\" src="https://www.youtube.com/embed/{data.youtube_url}?autoplay=1" 
                         title="moment classic player" 
                         frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -59,9 +57,25 @@ def get_emotion_page(emotion: str, db: Session = Depends(get_db)):
     """
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {"message": "감정 기반 클래식 힐링 서비스 - /emotion/기쁨 처럼 요청하세요."}
+    return f"""
+    <!DOCTYPE html>
+    <html lang=\"ko\">
+        <head>
+            <meta charset=\"UTF-8\">
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+            <title>모션 클래식 - 감정 기반 클래식 힐링 서비스</title>
+            <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">
+        </head>
+        <body class=\"bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-6\">
+            <div class=\"max-w-xl w-full bg-white rounded-2xl shadow-lg p-6\">
+                <h1 class=\"text-2xl font-bold text-center mb-4\">모션 클래식</h1>
+                <h2 class=\"text-xl font-semibold mb-2\">주소 뒤에 '/emotion/기쁨' 처럼 붙여서 검색하세요.</h2>
+            </div>
+        </body>
+    </html>
+    """
 
 
 @app.post(
