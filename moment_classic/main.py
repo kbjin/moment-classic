@@ -38,7 +38,7 @@ def get_emotion_page(emotion: str, db: Session = Depends(get_db)):
         </head>
         <body class=\"bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-6\">
             <div class=\"max-w-xl w-full bg-white rounded-2xl shadow-lg p-6\">
-                <h1 class=\"text-2xl font-bold text-center mb-4\">모션 클래식 - {emotion}을 위한 클래식</h1>
+                <h1 class=\"text-2xl font-bold text-center mb-4\">{emotion}을 위한 클래식</h1>
                 <h2 class=\"text-xl font-semibold mb-2\">🎼 {data.title}</h2>
                 <div class=\"aspect-w-16 aspect-h-9 mb-4\">
                     <iframe class=\"w-full h-64 rounded\" src="https://www.youtube.com/embed/{data.youtube_url}?autoplay=1" 
@@ -65,12 +65,12 @@ def root():
         <head>
             <meta charset=\"UTF-8\">
             <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-            <title>모션 클래식 - 감정 기반 클래식 힐링 서비스</title>
+            <title>모멘트 클래식 - 감정 기반 클래식 힐링 서비스</title>
             <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">
         </head>
         <body class=\"bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-6\">
             <div class=\"max-w-xl w-full bg-white rounded-2xl shadow-lg p-6\">
-                <h1 class=\"text-2xl font-bold text-center mb-4\">모션 클래식</h1>
+                <h1 class=\"text-2xl font-bold text-center mb-4\">모멘트 클래식</h1>
                 <h2 class=\"text-xl font-semibold mb-2\">주소 뒤에 '/emotion/기쁨' 처럼 붙여서 검색하세요.</h2>
             </div>
         </body>
