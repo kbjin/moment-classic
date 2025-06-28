@@ -14,3 +14,4 @@ class MusicEntry(Base):
     description = Column(Text)
     commentary = Column(Text)
     created_at = Column(TIMESTAMP, server_default=func.now())
+    modified_at = Column(TIMESTAMP, server_default=func.now())

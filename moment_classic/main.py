@@ -1,13 +1,18 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import now
+from starlette.responses import RedirectResponse
+from starlette.templating import Jinja2Templates
 
 from moment_classic import models, schemas
 from moment_classic.auth import auth_or_api_key
-from moment_classic.database import get_db
+from moment_classic.database import SessionLocal
 
 app = FastAPI()
+templates = Jinja2Templates(directory="moment_classic/templates")
 
 # CORS 설정 (프론트에서 요청 가능하게)
 app.add_middleware(
@@ -17,6 +22,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/emotion/{emotion}", response_class=HTMLResponse)
@@ -101,16 +114,6 @@ def read_music(music_id: int, db: Session = Depends(get_db)):
     return music
 
 
-@app.delete("/music/{music_id}", dependencies=[Depends(auth_or_api_key)])
-def delete_music(music_id: int, db: Session = Depends(get_db)):
-    music = db.query(models.MusicEntry).filter(models.MusicEntry.id == music_id).first()
-    if not music:
-        raise HTTPException(status_code=404, detail="Music entry not found")
-    db.delete(music)
-    db.commit()
-    return {"message": "Deleted successfully"}
-
-
 @app.get("/emotions")
 def list_emotions():
     emotions = ["기쁨", "슬픔", "집중", "불안", "혼란"]
@@ -167,3 +170,57 @@ def show_form():
     </body>
     </html>
     """
+
+
+@app.get(
+    "/music_list", response_class=HTMLResponse, dependencies=[Depends(auth_or_api_key)]
+)
+def get_music_list(request: Request, db: Session = Depends(get_db)):
+    music_list = db.query(models.MusicEntry).order_by(models.MusicEntry.id.asc()).all()
+    return templates.TemplateResponse(
+        "music_list.html", {"request": request, "music_list": music_list}
+    )
+
+
+@app.get(
+    "/edit/{music_id}",
+    response_class=HTMLResponse,
+    dependencies=[Depends(auth_or_api_key)],
+)
+def edit_music_form(music_id: int, request: Request, db: Session = Depends(get_db)):
+    music = db.query(models.MusicEntry).filter(models.MusicEntry.id == music_id).first()
+    if not music:
+        raise HTTPException(status_code=404, detail="Not found")
+    return templates.TemplateResponse(
+        "edit_music.html", {"request": request, "music": music}
+    )
+
+
+@app.post("/edit/{music_id}", dependencies=[Depends(auth_or_api_key)])
+def update_music(
+    music_id: int,
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+):
+    music = db.query(models.MusicEntry).filter(models.MusicEntry.id == music_id).first()
+    if not music:
+        raise HTTPException(status_code=404, detail="Music entry not found")
+
+    music.title = payload["title"]
+    music.emotion = payload["emotion"]
+    music.youtube_url = payload["youtube_url"]
+    music.description = payload["description"]
+    music.commentary = payload["commentary"]
+    music.modified_at = now()
+    db.commit()
+    return {"success": True}
+
+
+@app.post("/delete/{music_id}", dependencies=[Depends(auth_or_api_key)])
+def delete_music(music_id: int, db: Session = Depends(get_db)):
+    music = db.query(models.MusicEntry).filter(models.MusicEntry.id == music_id).first()
+    if not music:
+        raise HTTPException(status_code=404, detail="Music entry not found")
+    db.delete(music)
+    db.commit()
+    return RedirectResponse(url="/music_list", status_code=303)

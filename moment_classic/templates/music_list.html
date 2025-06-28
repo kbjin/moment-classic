@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Music List</title>
+    <style>
+        table { border-collapse: collapse; width: 90%; margin: auto; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        a, button { color: blue; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        form { display: inline; }
+    </style>
+</head>
+<body>
+<h1 style="text-align:center;">Music List</h1>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>감정</th>
+        <th>제목</th>
+        <th>링크</th>
+        <th>설명</th>
+        <th>오늘의 한마디</th>
+        <th>작성일</th>
+        <th>수정일</th>
+        <th>수정</th>
+        <th>삭제</th>
+    </tr>
+    {% for music in music_list %}
+    <tr>
+        <td>{{ music.id }}</td>
+        <td>{{ music.emotion }}</td>
+        <td><a href="/emotion/{{ music.emotion }}">{{ music.title }}</a></td>
+        <td>{{ music.youtube_url }}</td>
+        <td>{{ music.description }}</td>
+        <td>{{ music.commentary }}</td>
+        <td>{{ music.created_at }}</td>
+        <td>{{ music.modified_at }}</td>
+        <td>
+            <form method="get" action="/edit/{{ music.id }}">
+                <button type="submit">수정</button>
+            </form>
+        </td>
+        <td>
+            <form method="post" action="/delete/{{ music.id }}" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <button type="submit">삭제</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
