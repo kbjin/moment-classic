@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>음악 등록</title>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+            const data = {
+                emotion: document.getElementById("emotion").value,
+                title: document.getElementById("title").value,
+                youtube_url: document.getElementById("youtube_url").value,
+                description: document.getElementById("description").value,
+                commentary: document.getElementById("commentary").value
+            };
+
+            const res = await fetch("/music/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                alert("저장 완료! ID: " + result.id);
+                document.getElementById("form").reset();
+            } else {
+                alert("저장 실패!");
+            }
+        }
+    </script>
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: 2rem auto;">
+<h2>🎼 클래식 음악 등록</h2>
+<form id="form" onsubmit="submitForm(event)">
+    <label>감정<br><input id="emotion" required style="width: 100%;"/></label><br><br>
+    <label>제목<br><input id="title" required style="width: 100%;"/></label><br><br>
+    <label>YouTube 링크<br><input id="youtube_url" required style="width: 100%;"/></label><br><br>
+    <label>설명<br><textarea id="description" rows="3" style="width: 100%;"></textarea></label><br><br>
+    <label>오늘의 한마디<br><input id="commentary" style="width: 100%;"/></label><br><br>
+    <button type="submit" style="padding: 10px 20px;">저장</button>
+</form>
+</body>
+</html>

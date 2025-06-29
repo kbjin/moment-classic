@@ -33,62 +33,21 @@ def get_db():
 
 
 @app.get("/emotion/{emotion}", response_class=HTMLResponse)
-def get_emotion_page(emotion: str, db: Session = Depends(get_db)):
+def get_emotion_page(request: Request, emotion: str, db: Session = Depends(get_db)):
     data = (
         db.query(models.MusicEntry).filter(models.MusicEntry.emotion == emotion).first()
     )
     if not data:
         return HTMLResponse("<h2>해당 감정의 음악이 없습니다.</h2>", status_code=404)
 
-    return f"""
-    <!DOCTYPE html>
-    <html lang=\"ko\">
-        <head>
-            <meta charset=\"UTF-8\">
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-            <title>{emotion}을 위한 음악</title>
-            <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">
-        </head>
-        <body class=\"bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-6\">
-            <div class=\"max-w-xl w-full bg-white rounded-2xl shadow-lg p-6\">
-                <h1 class=\"text-2xl font-bold text-center mb-4\">{emotion}을 위한 클래식</h1>
-                <h2 class=\"text-xl font-semibold mb-2\">🎼 {data.title}</h2>
-                <div class=\"aspect-w-16 aspect-h-9 mb-4\">
-                    <iframe class=\"w-full h-64 rounded\" src="https://www.youtube.com/embed/{data.youtube_url}?autoplay=1" 
-                        title="moment classic player" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin" 
-                        allowfullscreen>
-                    </iframe>
-                </div>
-                <p class=\"text-gray-700 mb-2\">{data.description}</p>
-                <p class=\"italic text-sm text-gray-600\">오늘의 한마디: {data.commentary}</p>
-            </div>
-        </body>
-    </html>
-    """
+    return templates.TemplateResponse(
+        "emotion.html", {"request": request, "emotion": emotion, "data": data}
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
-def root():
-    return f"""
-    <!DOCTYPE html>
-    <html lang=\"ko\">
-        <head>
-            <meta charset=\"UTF-8\">
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-            <title>모멘트 클래식 - 감정 기반 클래식 힐링 서비스</title>
-            <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">
-        </head>
-        <body class=\"bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-6\">
-            <div class=\"max-w-xl w-full bg-white rounded-2xl shadow-lg p-6\">
-                <h1 class=\"text-2xl font-bold text-center mb-4\">모멘트 클래식</h1>
-                <h2 class=\"text-xl font-semibold mb-2\">주소 뒤에 '/emotion/기쁨' 처럼 붙여서 검색하세요.</h2>
-            </div>
-        </body>
-    </html>
-    """
+def root(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
 
 
 @app.post(
@@ -123,53 +82,8 @@ def list_emotions():
 @app.get(
     "/submit", response_class=HTMLResponse, dependencies=[Depends(auth_or_api_key)]
 )
-def show_form():
-    return """
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <title>음악 등록</title>
-        <script>
-            async function submitForm(event) {
-                event.preventDefault();
-                const data = {
-                    emotion: document.getElementById("emotion").value,
-                    title: document.getElementById("title").value,
-                    youtube_url: document.getElementById("youtube_url").value,
-                    description: document.getElementById("description").value,
-                    commentary: document.getElementById("commentary").value
-                };
-
-                const res = await fetch("/music/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-
-                if (res.ok) {
-                    const result = await res.json();
-                    alert("저장 완료! ID: " + result.id);
-                    document.getElementById("form").reset();
-                } else {
-                    alert("저장 실패!");
-                }
-            }
-        </script>
-    </head>
-    <body style="font-family: sans-serif; max-width: 600px; margin: 2rem auto;">
-        <h2>🎼 클래식 음악 등록</h2>
-        <form id="form" onsubmit="submitForm(event)">
-            <label>감정<br><input id="emotion" required style="width: 100%;"/></label><br><br>
-            <label>제목<br><input id="title" required style="width: 100%;"/></label><br><br>
-            <label>YouTube 링크<br><input id="youtube_url" required style="width: 100%;"/></label><br><br>
-            <label>설명<br><textarea id="description" rows="3" style="width: 100%;"></textarea></label><br><br>
-            <label>오늘의 한마디<br><input id="commentary" style="width: 100%;"/></label><br><br>
-            <button type="submit" style="padding: 10px 20px;">저장</button>
-        </form>
-    </body>
-    </html>
-    """
+def submit(request: Request):
+    return templates.TemplateResponse("submit.html", {"request": request})
 
 
 @app.get(
