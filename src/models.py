@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Text, TIMESTAMP, func
 
-from moment_classic.database import Base
+from src.database import Base
 
 
 class MusicEntry(Base):

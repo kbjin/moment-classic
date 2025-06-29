@@ -7,12 +7,12 @@ from sqlalchemy.sql.functions import now
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from moment_classic import models, schemas
-from moment_classic.auth import auth_or_api_key
-from moment_classic.database import SessionLocal
+from src import models, schemas
+from src.auth import auth_or_api_key
+from src.database import SessionLocal
 
 app = FastAPI()
-templates = Jinja2Templates(directory="moment_classic/templates")
+templates = Jinja2Templates(directory="src/templates")
 
 # CORS 설정 (프론트에서 요청 가능하게)
 app.add_middleware(
